@@ -3,5 +3,5 @@ kind: ConfigMap
 metadata:
   name: sample
 data:
-  image: {{ .Values.manifest.image }}
+  image: {{ .Values.manifest.docker.image }}
 
