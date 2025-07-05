@@ -1,9 +1,7 @@
 apiVersion: v1
-data:
-  chartName: {{ .Values.foo.bar }}
-  {{- if .Values.extra }}
-  extraValue: {{ .Values.extra.value }}
-  {{- end}}
 kind: ConfigMap
 metadata:
   name: sample
+data:
+  image: {{ .Values.manifest.image }}
+
