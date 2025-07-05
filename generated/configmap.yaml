@@ -3,5 +3,5 @@ kind: ConfigMap
 metadata:
   name: sample
 data:
-  image: 
+  image: nginxinc/nginx-unprivileged:1.23.2
 
