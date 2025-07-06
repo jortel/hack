@@ -4,4 +4,5 @@ metadata:
   name: sample
 data:
   image: {{ .Values.manifest.docker.image }}
+  image2: {{ .Values.manifest.docker.image }}
 
