@@ -1,0 +1,42 @@
+    docker:
+      image: nginxinc/nginx-unprivileged:1.23.2
+    healthCheck:
+      endpoint: ""
+      interval: 0
+      timeout: 0
+      type: ""
+    instances: 1
+    name: nginx
+    processes:
+    - command: /docker-entrypoint.sh nginx -g daemon off;
+      disk: "1024"
+      healthCheck:
+        endpoint: /
+        interval: 30
+        timeout: 1
+        type: port
+      instances: 1
+      lifecycle: docker
+      logRateLimit: "-1"
+      memory: "256"
+      readinessCheck:
+        endpoint: /
+        interval: 30
+        timeout: 1
+        type: process
+      type: web
+    readinessCheck:
+      endpoint: ""
+      interval: 0
+      timeout: 0
+      type: ""
+    routes:
+      routes:
+      - options: {}
+        protocol: http1
+        route: nginx.bosh-lite.com
+    space: space
+    timeout: 60
+  application:
+    id: 2
+    name: ""
