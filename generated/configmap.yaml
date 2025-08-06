@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sample
+data:
+  image: nginxinc/nginx-unprivileged:1.23.2
+  image2: nginxinc/nginx-unprivileged:1.23.2
+
