@@ -3,6 +3,6 @@ kind: ConfigMap
 metadata:
   name: sample
 data:
-  image: nginxinc/nginx-unprivileged:1.23.2
-  image2: nginxinc/nginx-unprivileged:1.23.2
+  image: quay.io/jmontleon/nginx-unprivileged:latest
+  image2: quay.io/jmontleon/nginx-unprivileged:latest
 
