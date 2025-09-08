@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: sample
-data:
-  image: quay.io/jmontleon/nginx-unprivileged:latest
-  image2: quay.io/jmontleon/nginx-unprivileged:latest
-
