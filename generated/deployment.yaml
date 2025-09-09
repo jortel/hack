@@ -1,0 +1,49 @@
+
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: nginx-web
+  labels:
+    app.kubernetes.io/name: nginx
+    app.kubernetes.io/component: web
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 20%
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nginx
+      app.kubernetes.io/component: web
+  template:
+    metadata:
+      name: nginx-web
+      labels:
+        app.kubernetes.io/name: nginx
+        app.kubernetes.io/component: web
+    spec:
+      terminationGracePeriodSeconds: 60
+      serviceAccountName: nginx
+      containers:
+      - name: nginx-web
+        image: "image-registry.openshift-image-registry.svc:5000/nginx-web:latest"
+        imagePullPolicy: Always
+        command: ["/bin/bash", "-c"]
+        args:
+          - |
+            /docker-entrypoint.sh nginx -g daemon off;
+        ports:
+          - containerPort: 8080
+            protocol: TCP
+        env:
+          - name: PORT
+            value: 8080
+        livenessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 1
