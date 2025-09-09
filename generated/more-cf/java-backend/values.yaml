@@ -1,0 +1,45 @@
+version: "1.0.0"
+portName: 8080-tcp
+port: 8080
+
+routes: []
+deploymentStrategy:
+  type: RollingUpdate
+  rollingMaxSurge: 25%
+  rollingMaxUnavailable: 20%
+replicaCount: 1
+health:
+  livenessEndpoint: /actuator/health
+  readinessEndpoint: /actuator/health
+  probeDelay: 5
+  probePeriod: 10
+  probeTimeout: 2
+autoscaling:
+  enabled: false
+namespace:
+  enabled: true
+  name: ${{values.namespace}}
+  argocd:
+    name: ${{values.component_id}}
+
+replicaCount: 1
+
+image:
+  registry: image-registry.openshift-image-registry.svc:5000
+  pullPolicy: Always
+  tag: latest
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+namespace:
+  enabled: true
+  name: ${{values.namespace}}
+  argocd:
+    name: default
