@@ -32,7 +32,9 @@ spec:
         image: "image-registry.openshift-image-registry.svc:5000/nginx-web:latest"
         imagePullPolicy: Always
         command: ["/bin/bash", "-c"]
-        args: ["/docker-entrypoint.sh nginx -g daemon off;"]
+        args:
+          - |
+            /docker-entrypoint.sh nginx -g daemon off;
         ports:
           - containerPort: 8080
             protocol: TCP
