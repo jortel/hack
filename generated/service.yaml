@@ -1,0 +1,17 @@
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx-web
+  labels:
+    app.kubernetes.io/name: nginx
+    app.kubernetes.io/component: web
+spec:
+  ports:
+  - name: 8080-tcp
+    port: 8080
+    targetPort: 8080
+  selector:
+    app.kubernetes.io/name: nginx
+    app.kubernetes.io/component: web
