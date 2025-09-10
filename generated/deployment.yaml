@@ -41,6 +41,11 @@ spec:
         livenessProbe:
           tcpSocket:
             port: 8888
-          initialDelaySeconds: 60
           periodSeconds: 30
           timeoutSeconds: 1
+        readinessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - "ps -ef | grep 'off;' | grep -v grep"
