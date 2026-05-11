@@ -1,2 +1,0 @@
-# hack
-Used for testing.
