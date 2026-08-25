@@ -1,0 +1,36 @@
+application:
+    archetypes:
+        - Java
+    assetRepository:
+        branch: ""
+        kind: git
+        path: ""
+        tag: ""
+        url: https://github.com/konveyor/tackle-testapp-public.git
+    binary: ""
+    businessService: ""
+    contributors: []
+    name: Test
+    owner: ""
+    repository:
+        branch: ""
+        kind: git
+        path: ""
+        tag: ""
+        url: https://github.com/konveyor/tackle-testapp-public.git
+manifest: {}
+tags:
+    - Other=Properties
+    - Persistence=JPA named queries
+    - Language=Java
+    - Framework=Spring
+    - Framework=Spring Boot
+    - Tooling=Maven
+    - Language=PLSQL
+    - Language=TSQL
+    - Language=PLpgSQL
+    - Language=SQLPL
+    - Store=JPA named queries
+    - Embedded=Properties
+    - Java EE=JPA named queries
+    - Sustain=Properties
