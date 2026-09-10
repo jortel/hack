@@ -1,0 +1,200 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: {{ include "quickstart-pipelines.fullname" . }}
+  labels:
+    {{- include "quickstart-pipelines.labels" . | nindent 4 }}
+    {{- if eq .Values.pipeline.buildStrategy "buildah" }}
+    pipeline.openshift.io/strategy: docker
+    {{- else }}
+    pipeline.openshift.io/runtime: java
+    {{- end }}
+    pipeline.openshift.io/type: kubernetes
+spec:
+  params:
+    - name: GIT_REPO
+      type: string
+      description: Source code repository URL
+      {{- with (include "quickstart-pipelines.gitRepoURL" .) }}
+      default: {{ . | quote }}
+      {{- end }}
+    - name: GIT_REVISION
+      type: string
+      description: Git revision to build
+      default: {{ include "quickstart-pipelines.gitRevision" . | quote }}
+    - name: IMAGE_NAME
+      type: string
+      description: Full image reference to push
+      default: {{ include "quickstart-pipelines.imageBase" . | quote }}
+    - name: NAMESPACE
+      type: string
+      description: Target namespace (used in image registry path)
+    - name: PATH_CONTEXT
+      type: string
+      description: Path context within the source repository
+      default: {{ .Values.pipeline.pathContext | quote }}
+    {{- if eq .Values.pipeline.buildStrategy "s2i-java" }}
+    - name: VERSION
+      type: string
+      description: S2I Java builder version
+      default: {{ .Values.pipeline.s2i.version | quote }}
+    {{- end }}
+    {{- if (include "quickstart-pipelines.needsConfigWorkspace" .) }}
+    - name: CONFIG_REPO
+      type: string
+      description: Configuration repository URL
+      {{- with (include "quickstart-pipelines.configRepoURL" .) }}
+      default: {{ . | quote }}
+      {{- end }}
+    - name: CONFIG_BRANCH
+      type: string
+      description: Configuration repository branch
+      default: {{ include "quickstart-pipelines.configRepoBranch" . | quote }}
+    {{- end }}
+  workspaces:
+    - name: source
+    {{- if (include "quickstart-pipelines.needsConfigWorkspace" .) }}
+    - name: config-source
+    {{- end }}
+  tasks:
+    - name: fetch-source
+      params:
+        - name: URL
+          value: $(params.GIT_REPO)
+        - name: REVISION
+          value: $(params.GIT_REVISION)
+        - name: SUBDIRECTORY
+          value: ""
+        - name: DELETE_EXISTING
+          value: "true"
+      taskRef:
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: git-clone
+          - name: namespace
+            value: openshift-pipelines
+        resolver: cluster
+      workspaces:
+        - name: output
+          workspace: source
+    {{- if (include "quickstart-pipelines.needsConfigWorkspace" .) }}
+    - name: fetch-config
+      params:
+        - name: URL
+          value: $(params.CONFIG_REPO)
+        - name: REVISION
+          value: $(params.CONFIG_BRANCH)
+        - name: SUBDIRECTORY
+          value: ""
+        - name: DELETE_EXISTING
+          value: "true"
+      runAfter:
+        - fetch-source
+      taskRef:
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: git-clone
+          - name: namespace
+            value: openshift-pipelines
+        resolver: cluster
+      workspaces:
+        - name: output
+          workspace: config-source
+    {{- end }}
+    {{- if eq .Values.pipeline.buildStrategy "buildah" }}
+    - name: prepare-build
+      params:
+        - name: SCRIPT
+          value: |
+            cp $(workspaces.config.path)/{{ .Values.pipeline.dockerfilePath }} $(workspaces.source.path)/Dockerfile
+      runAfter:
+        - fetch-config
+      taskRef:
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: openshift-client
+          - name: namespace
+            value: openshift-pipelines
+        resolver: cluster
+      workspaces:
+        - name: manifest-dir
+          workspace: source
+        - name: kubeconfig-dir
+          workspace: config-source
+    {{- end }}
+    - name: build-image
+      params:
+        {{- if eq .Values.pipeline.buildStrategy "buildah" }}
+        - name: IMAGE
+          value: $(params.IMAGE_NAME):$(params.GIT_REVISION)
+        - name: TLS_VERIFY
+          value: {{ .Values.pipeline.tlsVerify | quote }}
+        - name: CONTEXT
+          value: $(params.PATH_CONTEXT)
+        {{- else }}
+        - name: IMAGE
+          value: $(params.IMAGE_NAME):$(params.GIT_REVISION)
+        - name: TLS_VERIFY
+          value: {{ .Values.pipeline.tlsVerify | quote }}
+        - name: CONTEXT
+          value: $(params.PATH_CONTEXT)
+        - name: VERSION
+          value: $(params.VERSION)
+        {{- end }}
+      runAfter:
+        {{- if eq .Values.pipeline.buildStrategy "buildah" }}
+        - prepare-build
+        {{- else if (include "quickstart-pipelines.needsConfigWorkspace" .) }}
+        - fetch-config
+        {{- else }}
+        - fetch-source
+        {{- end }}
+      taskRef:
+        params:
+          - name: kind
+            value: task
+          - name: name
+            {{- if eq .Values.pipeline.buildStrategy "buildah" }}
+            value: buildah
+            {{- else }}
+            value: s2i-java
+            {{- end }}
+          - name: namespace
+            value: openshift-pipelines
+        resolver: cluster
+      workspaces:
+        - name: source
+          workspace: source
+    {{- if .Values.pipeline.updateConfigRepo }}
+    - name: update-config-repo
+      params:
+        - name: SCRIPT
+          value: |
+            cd $(workspaces.manifest-dir.path)
+            sed -i 's|{{ .Values.pipeline.configImageKey }}:.*|{{ .Values.pipeline.configImageKey }}: $(params.GIT_REVISION)|' {{ .Values.pipeline.configValuesFile }}
+            git config user.email "pipeline@openshift.local"
+            git config user.name "OpenShift Pipeline"
+            git add {{ .Values.pipeline.configValuesFile }}
+            git commit -m "Update image tag to $(params.GIT_REVISION)" || echo "No changes to commit"
+            git push origin $(params.CONFIG_BRANCH)
+      runAfter:
+        - build-image
+      taskRef:
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: openshift-client
+          - name: namespace
+            value: openshift-pipelines
+        resolver: cluster
+      workspaces:
+        - name: manifest-dir
+          workspace: config-source
+    {{- end }}

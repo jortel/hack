@@ -1,0 +1,9 @@
+apiVersion: v2
+name: quickstart-pipelines
+description: A Helm chart for generating Tekton Pipelines to build and deploy Java microservices on OpenShift.
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+maintainers:
+  - name: "Ramón Román Nissen"
+    url: https://github.com/rromannissen

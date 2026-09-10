@@ -1,0 +1,40 @@
+# Konveyor application metadata (populated by the generator addon)
+# application:
+#   name: my-service
+#   owner: jsmith
+#   businessService: payments
+#   archetypes:
+#     - spring-boot-api
+#   assetRepository:
+#     kind: git
+#     url: https://github.com/acme/my-service-config.git
+#     branch: main
+#     tag: ""
+#     path: /
+
+# Required: the namespace where the application will be deployed
+targetNamespace: ""
+
+argocd:
+  # Namespace where the Application CR is created
+  namespace: openshift-gitops
+  # ArgoCD project to assign the application to
+  project: default
+  # Destination cluster (default: in-cluster)
+  destinationServer: https://kubernetes.default.svc
+  syncPolicy:
+    # Set to null to disable automated sync (manual mode):
+    #   automated:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+
+# Optional: create a dedicated ArgoCD AppProject for this application
+appProject:
+  enabled: false
+  # Additional source repos beyond the assetRepository (assetRepository.url is always included)
+  additionalSourceRepos: []
+  # Additional destination namespaces beyond targetNamespace (targetNamespace is always included)
+  additionalDestinations: []

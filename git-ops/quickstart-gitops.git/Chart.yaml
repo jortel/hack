@@ -1,0 +1,9 @@
+apiVersion: v2
+name: quickstart-gitops
+description: A Helm chart for generating ArgoCD Application definitions to onboard Java microservices into OpenShift GitOps.
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+maintainers:
+  - name: "Ramón Román Nissen"
+    url: https://github.com/rromannissen

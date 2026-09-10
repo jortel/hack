@@ -1,0 +1,27 @@
+Pipeline "{{ include "quickstart-pipelines.fullname" . }}" has been created.
+
+Build strategy: {{ .Values.pipeline.buildStrategy }}
+
+To trigger a PipelineRun:
+
+  cat <<EOF | oc create -f -
+  apiVersion: tekton.dev/v1
+  kind: PipelineRun
+  metadata:
+    generateName: {{ include "quickstart-pipelines.fullname" . }}-run-
+  spec:
+    pipelineRef:
+      name: {{ include "quickstart-pipelines.fullname" . }}
+    params:
+      - name: NAMESPACE
+        value: $(oc project -q)
+    workspaces:
+      - name: source
+        persistentVolumeClaim:
+          claimName: {{ include "quickstart-pipelines.fullname" . }}-source
+{{- if (include "quickstart-pipelines.needsConfigWorkspace" .) }}
+      - name: config-source
+        persistentVolumeClaim:
+          claimName: {{ include "quickstart-pipelines.fullname" . }}-config
+{{- end }}
+  EOF
