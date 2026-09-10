@@ -18,7 +18,31 @@ application:
         path: ""
         tag: ""
         url: https://github.com/konveyor/tackle-testapp-public.git
-manifest: {}
+manifest:
+    docker:
+        image: quay.io/jmontleon/nginx-unprivileged:latest
+    name: nginx
+    processes:
+        - command: /docker-entrypoint.sh nginx -g daemon off;
+          disk: "1024"
+          healthCheck:
+            interval: 30
+            invocationTimeout: 1
+            timeout: 60
+            type: port
+          instances: 1
+          lifecycle: docker
+          logRateLimit: "-1"
+          memory: "256"
+          readinessCheck:
+            type: process
+          type: web
+    routes:
+        routes:
+            - options: {}
+              protocol: http1
+              route: nginx.bosh-lite.com
+    space: space
 tags:
     - Other=Properties
     - Persistence=JPA named queries
