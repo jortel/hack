@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: micro-services-demo-source
+  labels:
+    helm.sh/chart: quickstart-pipelines-0.1.0
+    app.kubernetes.io/name: quickstart-pipelines
+    app.kubernetes.io/instance: quickstart-pipelines
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/managed-by: Helm
+    konveyor.io/archetype: "Java"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: micro-services-demo-config
+  labels:
+    helm.sh/chart: quickstart-pipelines-0.1.0
+    app.kubernetes.io/name: quickstart-pipelines
+    app.kubernetes.io/instance: quickstart-pipelines
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/managed-by: Helm
+    konveyor.io/archetype: "Java"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 256Mi

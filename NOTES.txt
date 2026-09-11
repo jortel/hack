@@ -1,0 +1,12 @@
+
+ArgoCD Application "micro-services-demo" has been created in namespace "openshift-gitops".
+
+Source:
+  Repository: https://github.com/jortel/hack.git
+  Revision:   main
+  Path:       /
+
+Destination:
+  Namespace:  
+
+Sync policy is set to automated (prune=true, selfHeal=true).

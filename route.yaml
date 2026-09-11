@@ -1,0 +1,23 @@
+
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: micro-services-demo
+  labels:
+    helm.sh/chart: quickstart-java-service-0.2.0
+    app.kubernetes.io/name: quickstart-java-service
+    app.kubernetes.io/instance: quickstart-java-service
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/managed-by: Helm
+    konveyor.io/archetype: "Java"
+  annotations:
+    konveyor.io/source-repository: https://github.com/rromannissen/rhoar-microservices-demo.git
+spec:
+  to:
+    kind: Service
+    name: micro-services-demo
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge

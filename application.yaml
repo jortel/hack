@@ -1,0 +1,32 @@
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: micro-services-demo
+  namespace: openshift-gitops
+  labels:
+    helm.sh/chart: quickstart-gitops-0.1.0
+    app.kubernetes.io/name: quickstart-gitops
+    app.kubernetes.io/instance: quickstart-gitops
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/managed-by: Helm
+    konveyor.io/archetype: "Java"
+  annotations:
+    konveyor.io/config-repository: https://github.com/jortel/hack.git
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/jortel/hack.git
+    targetRevision: main
+    path: /
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: 
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
